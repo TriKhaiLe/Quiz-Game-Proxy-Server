@@ -1,6 +1,8 @@
-
-using QuizGameServer.Configurations;
+﻿
 using QuizGameServer.Services;
+using DotnetGeminiSDK;
+using DotnetGeminiSDK.Client.Interfaces;
+using DotnetGeminiSDK.Client;
 
 namespace QuizGameServer
 {
@@ -9,6 +11,7 @@ namespace QuizGameServer
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            var logger = builder.Logging.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
 
             // Add services to the container.
 
@@ -16,12 +19,25 @@ namespace QuizGameServer
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddHttpClient<GoogleGenerativeAIService>();
+            builder.Services.AddHttpClient<GeminiService>();
             builder.Services.AddLogging();
 
             var apiKey = builder.Configuration["Gemini:ApiKey"] ?? Environment.GetEnvironmentVariable("GOOGLE_GEMINI_API_KEY");
-            builder.Services.Configure<GoogleGenerativeAIOptions>(options => options.ApiKey = apiKey);
 
+            if (string.IsNullOrEmpty(apiKey))
+            {
+                logger.LogWarning("⚠️ API Key for Gemini is missing! The application may not function properly.");
+            }
+            else
+            {
+                builder.Services.AddGeminiClient(configure =>
+                {
+                    configure.ApiKey = apiKey;
+                });
+            }
+
+            builder.Services.AddTransient<GeminiService>();
+            builder.Services.AddTransient<IGeminiClient, GeminiClient>();
 
             var app = builder.Build();
 

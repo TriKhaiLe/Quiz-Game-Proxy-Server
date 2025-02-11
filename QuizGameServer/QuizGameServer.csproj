@@ -10,6 +10,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+	<PackageReference Include="DotnetGeminiSDK" Version="1.0.0" />
+
   </ItemGroup>
 
 </Project>

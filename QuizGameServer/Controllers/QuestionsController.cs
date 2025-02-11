@@ -8,15 +8,15 @@ namespace QuizGameServer.Controllers
     [Route("[controller]")]
     public class QuestionsController : ControllerBase
     {
-        private readonly GoogleGenerativeAIService _googleGenerativeAIService;
+        private readonly GeminiService _googleGenerativeAIService;
 
-        public QuestionsController(GoogleGenerativeAIService googleGenerativeAIService)
+        public QuestionsController(GeminiService googleGenerativeAIService)
         {
             _googleGenerativeAIService = googleGenerativeAIService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetQuestions(string topic, string difficulty)
+        public async Task<IActionResult> GetQuestions(string topic, double difficulty)
         {
             var questions = await _googleGenerativeAIService.FetchQuestionsAsync(topic, difficulty);
             return Ok(questions);

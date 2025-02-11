@@ -1,9 +1,10 @@
-namespace QuizGameServer.Models
+﻿namespace QuizGameServer.Models
 {
     public class Question
     {
-        public string QuestionText { get; set; }
-        public string[] Answers { get; set; }
-        public string CorrectAnswer { get; set; }
+        public string Content { get; set; } = string.Empty;
+        public List<string> Options { get; set; } = new();
+        public int CorrectOptionIndex { get; set; }
+        public string Explanation { get; set; } = string.Empty;
     }
 }
