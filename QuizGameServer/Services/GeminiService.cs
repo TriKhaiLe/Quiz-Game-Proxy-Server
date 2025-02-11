@@ -34,7 +34,7 @@ namespace QuizGameServer.Services
                 throw new ArgumentException("Difficulty must be between 1 and 10");
             }
 
-            var prompt = $@"Generate {numberOfQuestions} multiple choice questions about {topic} with difficulty level {difficulty} in Vietnamese. The questions should be short, easy to understand, and general knowledge.
+            var prompt = $@"Generate {numberOfQuestions} multiple choice questions about {topic} with difficulty level {difficulty}/10 in Vietnamese. The questions should be short, easy to understand, and general knowledge.
                 Format the response as a JSON array with each question having the following structure:
                 {{
                     ""content"": ""question text"",
