@@ -1,8 +1,12 @@
-﻿
-using QuizGameServer.Services;
-using DotnetGeminiSDK;
-using DotnetGeminiSDK.Client.Interfaces;
+﻿using DotnetGeminiSDK;
 using DotnetGeminiSDK.Client;
+using DotnetGeminiSDK.Client.Interfaces;
+using QuizGameServer.Configurations;
+using QuizGameServer.Middlewares;
+using QuizGameServer.Services;
+using Serilog;
+using Serilog.Events;
+using System.Net;
 
 namespace QuizGameServer
 {
@@ -12,6 +16,26 @@ namespace QuizGameServer
         {
             var builder = WebApplication.CreateBuilder(args);
             var logger = builder.Logging.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
+
+            var emailOptions = new SerilogEmailOptions();
+            builder.Configuration.GetSection("Serilog:WriteTo:2:Args").Bind(emailOptions);
+
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Configuration)
+                .WriteTo.Email(
+                    from: emailOptions.FromEmail,
+                    to: emailOptions.ToEmail,
+                    host: emailOptions.MailServer,
+                    port: emailOptions.Port,
+                    credentials: new NetworkCredential(emailOptions.NetworkCredentials?.UserName, emailOptions.NetworkCredentials?.Password),
+                    subject: emailOptions.EmailSubject,
+                    restrictedToMinimumLevel: LogEventLevel.Error
+                )
+                .Enrich.FromLogContext()
+                .CreateLogger();
+            Serilog.Debugging.SelfLog.Enable(Console.Error);
+
+            builder.Host.UseSerilog();
 
             // Add services to the container.
 
@@ -60,7 +84,17 @@ namespace QuizGameServer
             app.UseAuthorization();
             app.MapControllers();
 
-            app.Run();
+            app.UseMiddleware<ErrorHandlingMiddleware>();
+
+            try
+            {
+                Log.Information("Starting up...");
+                app.Run();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Application start-up failed!");
+            }
         }
     }
 }

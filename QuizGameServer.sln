@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178 d17.12
+VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuizGameServer", "QuizGameServer\QuizGameServer.csproj", "{1E25B2DC-8D28-425F-A460-D81C27224DEB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{388842FA-CA5D-4A31-9A33-9859254C6A5B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,8 +17,15 @@ Global
 		{1E25B2DC-8D28-425F-A460-D81C27224DEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E25B2DC-8D28-425F-A460-D81C27224DEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E25B2DC-8D28-425F-A460-D81C27224DEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{388842FA-CA5D-4A31-9A33-9859254C6A5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{388842FA-CA5D-4A31-9A33-9859254C6A5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{388842FA-CA5D-4A31-9A33-9859254C6A5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{388842FA-CA5D-4A31-9A33-9859254C6A5B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2442A672-7977-4D76-80EB-62AC697E0CFE}
 	EndGlobalSection
 EndGlobal
