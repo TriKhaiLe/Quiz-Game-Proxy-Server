@@ -28,7 +28,7 @@ namespace QuizGameServer.Services
         {
             if (string.IsNullOrEmpty(topic) || topic.Length > 100)
                 throw new ArgumentException("Topic must be between 1 and 100 characters");
-            if (string.IsNullOrEmpty(difficulty) || difficulty.Length > 20)
+            if (string.IsNullOrEmpty(difficulty))
                 throw new ArgumentException("Difficulty must be provided");
 
             var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={_apiKey}";
