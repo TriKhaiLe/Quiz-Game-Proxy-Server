@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using QuizGameServer.Services;
 using System.Threading.Tasks;
+using QuizGameServer.Models; // Thêm namespace cho model
 
 namespace QuizGameServer.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/quiz")]
     public class QuestionsController : ControllerBase
     {
         private readonly GeminiService _googleGenerativeAIService;
@@ -15,10 +16,10 @@ namespace QuizGameServer.Controllers
             _googleGenerativeAIService = googleGenerativeAIService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetQuestions(string topic, double difficulty)
+        [HttpPost("generate")]
+        public async Task<IActionResult> GenerateQuestions([FromBody] QuizRequest request)
         {
-            var questions = await _googleGenerativeAIService.FetchQuestionsAsync(topic, difficulty);
+            var questions = await _googleGenerativeAIService.FetchQuestionsAsync(request.Topic, request.Difficulty);
             return Ok(questions);
         }
     }

@@ -17,12 +17,16 @@ namespace QuizGameServer
             var builder = WebApplication.CreateBuilder(args);
             var logger = builder.Logging.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
 
-            var emailOptions = new SerilogEmailOptions();
-            builder.Configuration.GetSection("Serilog:WriteTo:2:Args").Bind(emailOptions);
-
-            Log.Logger = new LoggerConfiguration()
+            var loggerConfig = new LoggerConfiguration()
                 .ReadFrom.Configuration(builder.Configuration)
-                .WriteTo.Email(
+                .Enrich.FromLogContext();
+
+            if (builder.Environment.IsProduction())
+            {
+                var emailOptions = new SerilogEmailOptions();
+                builder.Configuration.GetSection("Serilog:WriteTo:2:Args").Bind(emailOptions);
+
+                loggerConfig.WriteTo.Email(
                     from: emailOptions.FromEmail,
                     to: emailOptions.ToEmail,
                     host: emailOptions.MailServer,
@@ -30,9 +34,10 @@ namespace QuizGameServer
                     credentials: new NetworkCredential(emailOptions.NetworkCredentials?.UserName, emailOptions.NetworkCredentials?.Password),
                     subject: emailOptions.EmailSubject,
                     restrictedToMinimumLevel: LogEventLevel.Error
-                )
-                .Enrich.FromLogContext()
-                .CreateLogger();
+                );
+            }
+
+            Log.Logger = loggerConfig.CreateLogger();
             Serilog.Debugging.SelfLog.Enable(Console.Error);
 
             builder.Host.UseSerilog();
@@ -40,11 +45,12 @@ namespace QuizGameServer
             // Add services to the container.
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddHttpClient<GeminiService>();
             builder.Services.AddLogging();
+            builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection("Gemini"));
 
             var apiKey = builder.Configuration["Gemini:ApiKey"] ?? Environment.GetEnvironmentVariable("GOOGLE_GEMINI_API_KEY");
 

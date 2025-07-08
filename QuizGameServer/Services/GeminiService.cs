@@ -1,74 +1,106 @@
 ﻿using QuizGameServer.Models;
-using Microsoft.Extensions.Options;
-using System.Net.Http;
-using System.Threading.Tasks;
-using QuizGameServer.Configurations;
 using Microsoft.Extensions.Logging;
-using DotnetGeminiSDK.Client.Interfaces;
 using Newtonsoft.Json;
+using System.Net.Http;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using QuizGameServer.Configurations;
+using System.Text.Json;
 
 namespace QuizGameServer.Services
 {
     public class GeminiService
     {
-        private readonly IGeminiClient _geminiClient;
+        private readonly HttpClient _httpClient;
         private readonly ILogger<GeminiService> _logger;
+        private readonly string _apiKey;
 
-        public GeminiService(IGeminiClient geminiClient, ILogger<GeminiService> logger)
+        public GeminiService(HttpClient httpClient, ILogger<GeminiService> logger, IOptions<GeminiOptions> options)
         {
-            _geminiClient = geminiClient;
+            _httpClient = httpClient;
             _logger = logger;
+            _apiKey = options.Value.ApiKey ?? throw new Exception("Gemini API key not configured");
         }
 
-        public async Task<List<Question>> FetchQuestionsAsync(string topic, double difficulty, int numberOfQuestions = 5)
+        public async Task<List<QuizQuestion>> FetchQuestionsAsync(string topic, string difficulty, int numberOfQuestions = 5)
         {
-            // check topic không được rỗng và dưới 100 ký tự
             if (string.IsNullOrEmpty(topic) || topic.Length > 100)
-            {
                 throw new ArgumentException("Topic must be between 1 and 100 characters");
-            }
+            if (string.IsNullOrEmpty(difficulty) || difficulty.Length > 20)
+                throw new ArgumentException("Difficulty must be provided");
 
-            // difficulty phải nằm trong khoảng từ 1 đến 10
-            if (difficulty < 1 || difficulty > 10)
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={_apiKey}";
+
+            var prompt = $@"
+                Tạo một bộ câu đố gồm chính xác {numberOfQuestions} câu hỏi trắc nghiệm về chủ đề '{topic}', với độ khó là '{difficulty}'.
+
+                Yêu cầu:
+                - Mỗi câu hỏi phải có chính xác 4 lựa chọn trả lời.
+                - Có một và chỉ một đáp án đúng cho mỗi câu.
+                - Trả về kết quả dưới dạng một mảng JSON hợp lệ.
+
+                Mỗi phần tử trong mảng JSON là một đối tượng có các khóa:
+                - ""question"" (string): Nội dung câu hỏi.
+                - ""options"" (string[]): Một mảng gồm 4 lựa chọn.
+                - ""correctAnswer"" (string): Một chuỗi chính xác là một trong các phần tử trong ""options"".
+
+                Ví dụ định dạng đầu ra:
+
+                [
+                    {{
+                    ""question"": ""Thủ đô của Việt Nam là gì?"",
+                    ""options"": [""Hà Nội"", ""Đà Nẵng"", ""TP. Hồ Chí Minh"", ""Hải Phòng""],
+                    ""correctAnswer"": ""Hà Nội""
+                    }}
+                ]
+                ";
+
+            var requestBody = new
             {
-                throw new ArgumentException("Difficulty must be between 1 and 10");
-            }
-
-            var prompt = $@"Generate {numberOfQuestions} multiple choice questions about {topic} with difficulty level {difficulty}/10 in Vietnamese. The questions should be short, easy to understand, and general knowledge.
-                Format the response as a JSON array with each question having the following structure:
-                {{
-                    ""content"": ""question text"",
-                    ""options"": [""option1"", ""option2"", ""option3"", ""option4""],
-                    ""correctOptionIndex"": 0-3
-                    ""explanation"": ""A detailed explanation of why the correct answer is correct.""
-                }}
-                Make sure the questions are challenging but clear, and the options are plausible but with only one correct answer.
-                IMPORTANT: Return ONLY the JSON array, no additional text.";
-
-            var response = await _geminiClient.TextPrompt(prompt) ?? throw new Exception("Failed to generate quiz questions");
-            try
-            {
-                var jsonText = response.Candidates.FirstOrDefault()?.Content.Parts.FirstOrDefault()?.Text;
-                _logger.LogInformation("✅ Received JSON: {JsonText}", jsonText);
-
-                if (string.IsNullOrEmpty(jsonText))
+                contents = new[]
                 {
-                    throw new Exception("Empty response from the AI service");
+                    new { parts = new[] { new { text = prompt } } }
                 }
+            };
 
-                if (!jsonText.Trim().EndsWith("]"))
-                {
-                    _logger.LogError("❌ Response may be truncated! Incomplete JSON: {JsonText}", jsonText);
-                    return new List<Question>();
-                }
+            var requestJson = System.Text.Json.JsonSerializer.Serialize(requestBody);
+            var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
 
-                var result = JsonConvert.DeserializeObject<List<Question>>(jsonText);
-                return result ?? [];
-            }
-            catch (JsonException ex)
+            var response = await _httpClient.PostAsync(url, content);
+
+            if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Failed to parse generated questions: {ex.Message}. Response: {response.ToString()}");
+                _logger.LogError("Gemini API error: {Status} {Reason}", response.StatusCode, response.ReasonPhrase);
+                throw new Exception($"Gemini API error: {response.StatusCode}");
             }
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(responseContent);
+            var text = doc.RootElement
+                            .GetProperty("candidates")[0]
+                            .GetProperty("content")
+                            .GetProperty("parts")[0]
+                            .GetProperty("text")
+                            .GetString();
+            if (string.IsNullOrEmpty(text))
+            {
+                _logger.LogError("Phản hồi từ Gemini không chứa dữ liệu văn bản.");
+                throw new Exception("Phản hồi từ Gemini không chứa dữ liệu văn bản.");
+            }
+
+            // Loại bỏ code fence nếu có
+            var fenceRegex = new Regex("^```(\\w*)?\\s*\\n?(.*?)\\n?\\s*```$", RegexOptions.Singleline);
+            var match = fenceRegex.Match(text);
+            if (match.Success && match.Groups.Count > 2)
+                text = match.Groups[2].Value.Trim();
+
+            var parsedData = JsonConvert.DeserializeObject<List<QuizQuestion>>(text);
+            if (parsedData == null || parsedData.Any(q => string.IsNullOrEmpty(q.Question) || q.Options == null || q.Options.Count != 4 || string.IsNullOrEmpty(q.CorrectAnswer)))
+                throw new Exception("Dữ liệu trả về từ AI không đúng định dạng.");
+
+            return parsedData.Take(numberOfQuestions).ToList();
         }
     }
 }
