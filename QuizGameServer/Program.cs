@@ -1,16 +1,17 @@
 ﻿using DotnetGeminiSDK;
 using DotnetGeminiSDK.Client;
 using DotnetGeminiSDK.Client.Interfaces;
-using QuizGameServer.Configurations;
-using QuizGameServer.Middlewares;
-using QuizGameServer.Services;
-using QuizGameServer.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using QuizGameServer.Application.Configurations;
+using QuizGameServer.Application.Contracts;
+using QuizGameServer.Infrastructure;
+using QuizGameServer.Infrastructure.Services;
+using QuizGameServer.Middlewares;
 using Serilog;
 using Serilog.Events;
 using System.Net;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 
 namespace QuizGameServer
 {
@@ -45,6 +46,7 @@ namespace QuizGameServer
             Serilog.Debugging.SelfLog.Enable(Console.Error);
 
             builder.Host.UseSerilog();
+            builder.Services.AddAutoMapper(typeof(UserProfileMappingProfile));
 
 
             // Add EF Core PostgreSQL
@@ -94,7 +96,7 @@ namespace QuizGameServer
 
             builder.Services.AddTransient<GeminiService>();
             builder.Services.AddTransient<IGeminiClient, GeminiClient>();
-            builder.Services.AddScoped<UserProfileService>();
+            builder.Services.AddScoped<QuizGameServer.Application.Interfaces.IUserProfileService, QuizGameServer.Infrastructure.Services.UserProfileService>();
 
             builder.Services.AddCors(options =>
             {

@@ -1,4 +1,4 @@
-namespace QuizGameServer.Configurations
+namespace QuizGameServer.Application.Configurations
 {
     public class GeminiOptions
     {

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace QuizGameServer.Models
+namespace QuizGameServer.Application.Contracts
 {
     public class UserProfileRequest
     {

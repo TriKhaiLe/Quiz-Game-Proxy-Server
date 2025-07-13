@@ -1,9 +1,9 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using QuizGameServer.Models;
-using QuizGameServer.Services;
-using System.Linq;
+using QuizGameServer.Application.Contracts;
 using System.Security.Claims;
+using QuizGameServer.Application.Interfaces;
 
 namespace QuizGameServer.Controllers
 {
@@ -12,11 +12,13 @@ namespace QuizGameServer.Controllers
     [Authorize]
     public class ProfileController : ControllerBase
     {
-        private readonly UserProfileService _profileService;
+        private readonly IUserProfileService _profileService;
+        private readonly IMapper _mapper;
 
-        public ProfileController(UserProfileService profileService)
+        public ProfileController(IUserProfileService profileService, IMapper mapper)
         {
             _profileService = profileService;
+            _mapper = mapper;
         }
 
         // Helper to extract user id from JWT claims
@@ -39,7 +41,8 @@ namespace QuizGameServer.Controllers
             {
                 return NotFound(new { error = "Profile not found for this user." });
             }
-            return Ok(profile);
+            var dto = _mapper.Map<QuizGameServer.Application.Contracts.UserProfileDto>(profile);
+            return Ok(dto);
         }
 
         [HttpPut]
@@ -59,7 +62,8 @@ namespace QuizGameServer.Controllers
                 return Unauthorized();
 
             var profile = await _profileService.UpsertProfileAsync(userId, request);
-            return Ok(profile);
+            var dto = _mapper.Map<QuizGameServer.Application.Contracts.UserProfileDto>(profile);
+            return Ok(dto);
         }
     }
 }

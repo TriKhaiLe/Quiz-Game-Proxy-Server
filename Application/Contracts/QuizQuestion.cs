@@ -1,4 +1,4 @@
-namespace QuizGameServer.Models
+namespace QuizGameServer.Application.Contracts
 {
     public class QuizRequest
     {

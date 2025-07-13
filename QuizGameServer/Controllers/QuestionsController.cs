@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using QuizGameServer.Services;
-using System.Threading.Tasks;
-using QuizGameServer.Models; // Thêm namespace cho model
+using QuizGameServer.Application.Contracts;
+using QuizGameServer.Infrastructure.Services;
 
 namespace QuizGameServer.Controllers
 {

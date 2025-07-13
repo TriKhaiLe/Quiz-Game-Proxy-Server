@@ -1,6 +1,6 @@
-namespace QuizGameServer.Models
+namespace QuizGameServer.Application.Contracts
 {
-    public class UserProfile
+    public class UserProfileDto
     {
         public string Username { get; set; }
         public string AvatarId { get; set; }

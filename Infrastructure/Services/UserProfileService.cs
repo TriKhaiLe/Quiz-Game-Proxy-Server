@@ -1,11 +1,10 @@
-
+using QuizGameServer.Application.Contracts;
+using QuizGameServer.Application.Interfaces;
 using QuizGameServer.Domain.Entities;
-using QuizGameServer.Infrastructure;
-using Microsoft.EntityFrameworkCore;
 
-namespace QuizGameServer.Services
+namespace QuizGameServer.Infrastructure.Services
 {
-    public class UserProfileService
+    public class UserProfileService : IUserProfileService
     {
         private readonly QuizGameDbContext _dbContext;
 
@@ -19,7 +18,7 @@ namespace QuizGameServer.Services
             return await _dbContext.UserProfiles.FindAsync(userId);
         }
 
-        public async Task<UserProfile> UpsertProfileAsync(string userId, Models.UserProfileRequest request)
+        public async Task<UserProfile> UpsertProfileAsync(string userId, UserProfileRequest request)
         {
             var profile = await _dbContext.UserProfiles.FindAsync(userId);
             if (profile == null)

@@ -1,15 +1,13 @@
-﻿using QuizGameServer.Models;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using QuizGameServer.Configurations;
 using System.Text.Json;
+using QuizGameServer.Application.Contracts;
+using QuizGameServer.Application.Configurations;
 
-namespace QuizGameServer.Services
+namespace QuizGameServer.Infrastructure.Services
 {
     public class GeminiService
     {
