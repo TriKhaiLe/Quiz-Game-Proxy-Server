@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using QuizGameServer.Application.Configurations;
 using QuizGameServer.Application.Contracts;
+using QuizGameServer.Application.Interfaces;
 using QuizGameServer.Infrastructure;
 using QuizGameServer.Infrastructure.Services;
 using QuizGameServer.Middlewares;
@@ -83,7 +84,7 @@ namespace QuizGameServer
 
             if (string.IsNullOrEmpty(apiKey))
             {
-                logger.LogWarning("⚠️ API Key for Gemini is missing! The application may not function properly.");
+                logger.LogWarning("API Key for Gemini is missing! The application may not function properly.");
             }
             else
             {
@@ -96,7 +97,7 @@ namespace QuizGameServer
 
             builder.Services.AddTransient<GeminiService>();
             builder.Services.AddTransient<IGeminiClient, GeminiClient>();
-            builder.Services.AddScoped<QuizGameServer.Application.Interfaces.IUserProfileService, QuizGameServer.Infrastructure.Services.UserProfileService>();
+            builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 
             builder.Services.AddCors(options =>
             {
@@ -111,8 +112,13 @@ namespace QuizGameServer
 
             var app = builder.Build();
 
+            app.UseStaticFiles();
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+                c.InjectJavascript("/swagger-ui/custom.js");
+            });
 
             app.UseHttpsRedirection();
             app.UseCors("AllowAll");
