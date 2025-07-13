@@ -4,9 +4,13 @@ using DotnetGeminiSDK.Client.Interfaces;
 using QuizGameServer.Configurations;
 using QuizGameServer.Middlewares;
 using QuizGameServer.Services;
+using QuizGameServer.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 using System.Net;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace QuizGameServer
 {
@@ -42,7 +46,28 @@ namespace QuizGameServer
 
             builder.Host.UseSerilog();
 
-            // Add services to the container.
+
+            // Add EF Core PostgreSQL
+            builder.Services.AddDbContext<QuizGameDbContext>(options =>
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            // Add authentication for Supabase JWT
+            var supabaseJwtSecret = builder.Configuration["Supabase:JwtSecret"];
+            var supabaseTokenExpiry = builder.Configuration.GetValue<int>("Supabase:AccessTokenExpiry", 3600);
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = false, // Supabase JWTs are self-contained
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.FromSeconds(supabaseTokenExpiry),
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(supabaseJwtSecret ?? ""))
+                    };
+                });
 
             builder.Services.AddControllers();
 
@@ -66,8 +91,10 @@ namespace QuizGameServer
                 });
             }
 
+
             builder.Services.AddTransient<GeminiService>();
             builder.Services.AddTransient<IGeminiClient, GeminiClient>();
+            builder.Services.AddScoped<UserProfileService>();
 
             builder.Services.AddCors(options =>
             {
@@ -87,6 +114,7 @@ namespace QuizGameServer
 
             app.UseHttpsRedirection();
             app.UseCors("AllowAll");
+            app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
 
