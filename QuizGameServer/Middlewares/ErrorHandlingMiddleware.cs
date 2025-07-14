@@ -24,7 +24,7 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "❌ Unhandled exception: {Message}", ex.Message);
+                _logger.LogError(ex, "Unhandled exception: {Message}", ex.Message);
 
                 var errorResponse = new
                 {
