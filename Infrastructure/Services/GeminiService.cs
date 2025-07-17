@@ -24,10 +24,16 @@ namespace QuizGameServer.Infrastructure.Services
 
         public async Task<List<QuizQuestion>> FetchQuestionsAsync(string topic, string difficulty, int numberOfQuestions = 5)
         {
-            if (string.IsNullOrEmpty(topic) || topic.Length > 100)
-                throw new ArgumentException("Topic must be between 1 and 100 characters");
+            if (string.IsNullOrEmpty(topic) || topic.Length > 500)
+            {
+                _logger.LogError("Invalid topic input: {Topic}, Difficulty: {Difficulty}, NumberOfQuestions: {NumberOfQuestions}", topic, difficulty, numberOfQuestions);
+                throw new ArgumentException("Topic must be between 1 and 500 characters");
+            }
             if (string.IsNullOrEmpty(difficulty))
+            {
+                _logger.LogError("Invalid difficulty input: {Topic}, Difficulty: {Difficulty}, NumberOfQuestions: {NumberOfQuestions}", topic, difficulty, numberOfQuestions);
                 throw new ArgumentException("Difficulty must be provided");
+            }
 
             var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={_apiKey}";
 
@@ -70,7 +76,7 @@ namespace QuizGameServer.Infrastructure.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogError("Gemini API error: {Status} {Reason}", response.StatusCode, response.ReasonPhrase);
+                _logger.LogError("Gemini API error: {Status} {Reason}. Input: Topic={Topic}, Difficulty={Difficulty}, NumberOfQuestions={NumberOfQuestions}", response.StatusCode, response.ReasonPhrase, topic, difficulty, numberOfQuestions);
                 throw new Exception($"Gemini API error: {response.StatusCode}");
             }
 
@@ -84,7 +90,7 @@ namespace QuizGameServer.Infrastructure.Services
                             .GetString();
             if (string.IsNullOrEmpty(text))
             {
-                _logger.LogError("Phản hồi từ Gemini không chứa dữ liệu văn bản.");
+                _logger.LogError("Phản hồi từ Gemini không chứa dữ liệu văn bản. Input: Topic={Topic}, Difficulty={Difficulty}, NumberOfQuestions={NumberOfQuestions}", topic, difficulty, numberOfQuestions);
                 throw new Exception("Phản hồi từ Gemini không chứa dữ liệu văn bản.");
             }
 
@@ -96,7 +102,10 @@ namespace QuizGameServer.Infrastructure.Services
 
             var parsedData = JsonConvert.DeserializeObject<List<QuizQuestion>>(text);
             if (parsedData == null || parsedData.Any(q => string.IsNullOrEmpty(q.Question) || q.Options == null || q.Options.Count != 4 || string.IsNullOrEmpty(q.CorrectAnswer)))
+            {
+                _logger.LogError("Dữ liệu trả về từ AI không đúng định dạng. Input: Topic={Topic}, Difficulty={Difficulty}, NumberOfQuestions={NumberOfQuestions}, RawText={RawText}", topic, difficulty, numberOfQuestions, text);
                 throw new Exception("Dữ liệu trả về từ AI không đúng định dạng.");
+            }
 
             return parsedData.Take(numberOfQuestions).ToList();
         }
