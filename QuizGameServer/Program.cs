@@ -135,6 +135,16 @@ namespace QuizGameServer
                               .AllowAnyMethod()
                               .AllowAnyHeader();
                     });
+
+                options.AddPolicy("AllowFrontend", policy =>
+                {
+                    policy.WithOrigins(
+                        "http://localhost:5173", // Cho local dev
+                        "https://quiz-game-trivia-master.vercel.app" // Cho bản đã deploy
+                    )
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+                });
             });
 
             var app = builder.Build();
@@ -148,7 +158,7 @@ namespace QuizGameServer
             });
 
             app.UseHttpsRedirection();
-            app.UseCors("AllowAll");
+            app.UseCors(builder.Environment.IsDevelopment() ? "AllowAll" : "AllowFrontend");
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
