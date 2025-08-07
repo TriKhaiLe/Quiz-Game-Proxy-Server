@@ -22,6 +22,11 @@
             {
                 await _next(context);
             }
+            catch (OperationCanceledException)
+            {
+                _logger.LogWarning("Request was canceled by the client.");
+                return;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled exception: {Message}", ex.Message);
