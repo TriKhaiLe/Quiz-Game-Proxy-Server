@@ -139,8 +139,8 @@ namespace QuizGameServer
                 options.AddPolicy("AllowFrontend", policy =>
                 {
                     policy.WithOrigins(
-                        "http://localhost:5173", // Cho local dev
-                        "https://quiz-game-trivia-master.vercel.app" // Cho bản đã deploy
+                        "http://localhost:5173",
+                        "https://quiz-game-trivia-master.vercel.app"
                     )
                     .AllowAnyHeader()
                     .AllowAnyMethod();
@@ -150,6 +150,16 @@ namespace QuizGameServer
             var app = builder.Build();
 
             app.UseStaticFiles();
+            app.Use(async (context, next) =>
+            {
+                context.RequestAborted.Register(() =>
+                {
+                    Console.WriteLine(">>> Client cancelled request!");
+                });
+
+                await next();
+            });
+
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {

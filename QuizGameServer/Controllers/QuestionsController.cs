@@ -16,9 +16,9 @@ namespace QuizGameServer.Controllers
         }
 
         [HttpPost("generate")]
-        public async Task<IActionResult> GenerateQuestions([FromBody] QuizRequest request)
+        public async Task<IActionResult> GenerateQuestions([FromBody] QuizRequest request, CancellationToken cancellationToken)
         {
-            var questions = await _googleGenerativeAIService.FetchQuestionsAsync(request.Topic, request.Difficulty);
+            var questions = await _googleGenerativeAIService.FetchQuestionsAsync(request.Topic, request.Difficulty, cancellationToken: cancellationToken);
             return Ok(questions);
         }
     }

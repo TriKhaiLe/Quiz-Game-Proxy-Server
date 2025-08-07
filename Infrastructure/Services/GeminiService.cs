@@ -22,7 +22,7 @@ namespace QuizGameServer.Infrastructure.Services
             _apiKey = options.Value.ApiKey ?? throw new Exception("Gemini API key not configured");
         }
 
-        public async Task<List<QuizQuestion>> FetchQuestionsAsync(string topic, string difficulty, int numberOfQuestions = 5)
+        public async Task<List<QuizQuestion>> FetchQuestionsAsync(string topic, string difficulty, int numberOfQuestions = 5, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(topic) || topic.Length > 500)
             {
@@ -72,7 +72,7 @@ namespace QuizGameServer.Infrastructure.Services
             var requestJson = System.Text.Json.JsonSerializer.Serialize(requestBody);
             var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(url, content);
+            var response = await _httpClient.PostAsync(url, content, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -80,7 +80,7 @@ namespace QuizGameServer.Infrastructure.Services
                 throw new Exception($"Gemini API error: {response.StatusCode}");
             }
 
-            var responseContent = await response.Content.ReadAsStringAsync();
+            var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
             using var doc = JsonDocument.Parse(responseContent);
             var text = doc.RootElement
                             .GetProperty("candidates")[0]
