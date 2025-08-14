@@ -125,6 +125,7 @@ namespace QuizGameServer
             builder.Services.AddTransient<GeminiService>();
             builder.Services.AddTransient<IGeminiClient, GeminiClient>();
             builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+            builder.Services.AddScoped<IQuizSharingService, QuizSharingService>();
 
             builder.Services.AddCors(options =>
             {

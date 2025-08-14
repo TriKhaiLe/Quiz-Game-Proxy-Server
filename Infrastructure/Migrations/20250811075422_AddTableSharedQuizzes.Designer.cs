@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using QuizGameServer.Infrastructure;
@@ -12,9 +13,11 @@ using QuizGameServer.Infrastructure;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(QuizGameDbContext))]
-    partial class QuizGameDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250811075422_AddTableSharedQuizzes")]
+    partial class AddTableSharedQuizzes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,15 +26,14 @@ namespace Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("QuizGameServer.Domain.Entities.QuizContent", b =>
+            modelBuilder.Entity("QuizGameServer.Domain.Entities.SharedQuiz", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ContentHash")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("CurrentQuestionIndex")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Difficulty")
                         .HasColumnType("integer");
@@ -42,10 +44,10 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("QuizContents");
+                    b.ToTable("SharedQuizzes");
                 });
 
-            modelBuilder.Entity("QuizGameServer.Domain.Entities.QuizContentQuestion", b =>
+            modelBuilder.Entity("QuizGameServer.Domain.Entities.SharedQuizQuestion", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -65,33 +67,14 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("QuizContentId")
+                    b.Property<Guid>("SharedQuizId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("QuizContentId");
+                    b.HasIndex("SharedQuizId");
 
-                    b.ToTable("QuizContentQuestions");
-                });
-
-            modelBuilder.Entity("QuizGameServer.Domain.Entities.SharedQuiz", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("CurrentQuestionIndex")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("QuizContentId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuizContentId");
-
-                    b.ToTable("SharedQuizzes");
+                    b.ToTable("SharedQuizQuestions");
                 });
 
             modelBuilder.Entity("QuizGameServer.Domain.Entities.UserProfile", b =>
@@ -114,29 +97,18 @@ namespace Infrastructure.Migrations
                     b.ToTable("UserProfiles", (string)null);
                 });
 
-            modelBuilder.Entity("QuizGameServer.Domain.Entities.QuizContentQuestion", b =>
+            modelBuilder.Entity("QuizGameServer.Domain.Entities.SharedQuizQuestion", b =>
                 {
-                    b.HasOne("QuizGameServer.Domain.Entities.QuizContent", "QuizContent")
+                    b.HasOne("QuizGameServer.Domain.Entities.SharedQuiz", "SharedQuiz")
                         .WithMany("Questions")
-                        .HasForeignKey("QuizContentId")
+                        .HasForeignKey("SharedQuizId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("QuizContent");
+                    b.Navigation("SharedQuiz");
                 });
 
             modelBuilder.Entity("QuizGameServer.Domain.Entities.SharedQuiz", b =>
-                {
-                    b.HasOne("QuizGameServer.Domain.Entities.QuizContent", "QuizContent")
-                        .WithMany()
-                        .HasForeignKey("QuizContentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("QuizContent");
-                });
-
-            modelBuilder.Entity("QuizGameServer.Domain.Entities.QuizContent", b =>
                 {
                     b.Navigation("Questions");
                 });
