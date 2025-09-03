@@ -13,15 +13,15 @@ using System.Text;
 
 namespace QuizGameServer.Infrastructure.Services
 {
-    public class QuizSharingService : IQuizSharingService
+    public class QuizResultSharingService : IQuizResultSharingService
     {
         private readonly QuizGameDbContext _db;
-        public QuizSharingService(QuizGameDbContext db)
+        public QuizResultSharingService(QuizGameDbContext db)
         {
             _db = db;
         }
 
-        public async Task<Guid> ShareQuizAsync(string topic, int difficulty, int currentQuestionIndex, List<SharedQuizQuestionDto> questions, CancellationToken cancellationToken = default)
+        public async Task<Guid> ShareQuizResultAsync(string topic, int difficulty, List<string> userAnswers, List<SharedQuizQuestionDto> questions, CancellationToken cancellationToken = default)
         {
             // Tính hash cho bộ câu hỏi
             var hashInput = $"{topic}|{difficulty}|" + string.Join("|", questions.Select(q => q.Question + string.Join(",", q.Options) + q.CorrectAnswer));
@@ -53,28 +53,21 @@ namespace QuizGameServer.Infrastructure.Services
                 await _db.SaveChangesAsync(cancellationToken);
             }
 
-            // not wrap in else block to avoid multiple queries at the same time
-            var sharedQuiz = await _db.SharedQuizzes
-                .FirstOrDefaultAsync(q => q.QuizContentId == quizContent.Id && q.CurrentQuestionIndex == currentQuestionIndex, cancellationToken);
-            if (sharedQuiz != null)
+            var result = new QuizResult
             {
-                return sharedQuiz.Id;
-            }
-
-            sharedQuiz = new SharedQuiz
-            {
-                CurrentQuestionIndex = currentQuestionIndex,
+                Topic = topic,
+                Difficulty = difficulty,
+                UserAnswers = userAnswers,
                 QuizContentId = quizContent.Id
             };
-            _db.SharedQuizzes.Add(sharedQuiz);
+            _db.QuizResults.Add(result);
             await _db.SaveChangesAsync(cancellationToken);
-            return sharedQuiz.Id;
+            return result.Id;
         }
 
-        public async Task<SharedQuiz> GetSharedQuizAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<QuizResult?> GetQuizResultAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await _db.SharedQuizzes
-                .Include(q => q.QuizContent)
+            return await _db.QuizResults.Include(q => q.QuizContent)
                 .ThenInclude(qc => qc.Questions)
                 .FirstOrDefaultAsync(q => q.Id == id, cancellationToken);
         }

@@ -11,7 +11,7 @@ namespace QuizGameServer.Domain.Entities
         public int CurrentQuestionIndex { get; set; }
         [Required]
         public Guid QuizContentId { get; set; }
-        public QuizContent QuizContent { get; set; }
+        public QuizContent QuizContent { get; set; } = null!;
     }
 
     public class QuizContent
@@ -19,11 +19,11 @@ namespace QuizGameServer.Domain.Entities
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
         [Required]
-        public string Topic { get; set; }
+        public required string Topic { get; set; }
         [Required]
         public int Difficulty { get; set; }
         [Required]
-        public string ContentHash { get; set; }
+        public required string ContentHash { get; set; }
         public List<QuizContentQuestion> Questions { get; set; } = new();
     }
 

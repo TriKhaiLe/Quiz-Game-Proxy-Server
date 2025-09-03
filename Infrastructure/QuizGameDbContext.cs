@@ -11,10 +11,12 @@ namespace QuizGameServer.Infrastructure
         public DbSet<SharedQuiz> SharedQuizzes { get; set; }
         public DbSet<QuizContent> QuizContents { get; set; }
         public DbSet<QuizContentQuestion> QuizContentQuestions { get; set; }
+        public DbSet<QuizResult> QuizResults { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new Configurations.UserProfileConfiguration());
+            modelBuilder.ApplyConfiguration(new Configurations.QuizResultConfiguration());
             base.OnModelCreating(modelBuilder);
         }
     }
