@@ -45,13 +45,13 @@ namespace QuizGameServer.Controllers
             sb.AppendLine($"  <title>Đố bạn kiến thức {topic}!</title>");
             sb.AppendLine("  <meta property=\"og:type\" content=\"website\" />");
             sb.AppendLine($"  <meta property=\"og:url\" content=\"{shareUrl}\" />");
-            sb.AppendLine($"  <meta property=\"og:title\" content=\"{previewQuestion.Question}\" />");
-            sb.AppendLine($"  <meta property=\"og:description\" content=\"Lựa chọn: {string.Join(", ", previewQuestion.Options)}\" />");
+            sb.AppendLine($"  <meta property=\"og:title\" content=\"Thử thách kiến thức {topic}!\" />");
+            sb.AppendLine($"  <meta property=\"og:description\" content=\"{previewQuestion.Question}\" />");
             sb.AppendLine($"  <meta property=\"og:image\" content=\"{previewImage}\" />");
             sb.AppendLine("  <meta property=\"twitter:card\" content=\"summary_large_image\" />");
             sb.AppendLine($"  <meta property=\"twitter:url\" content=\"{shareUrl}\" />");
-            sb.AppendLine($"  <meta property=\"twitter:title\" content=\"{previewQuestion.Question}\" />");
-            sb.AppendLine($"  <meta property=\"twitter:description\" content=\"Lựa chọn: {string.Join(", ", previewQuestion.Options)}\" />");
+            sb.AppendLine($"  <meta property=\"twitter:title\" content=\"Thử thách kiến thức {topic}!\" />");
+            sb.AppendLine($"  <meta property=\"twitter:description\" content=\"{previewQuestion.Question}\" />");
             sb.AppendLine($"  <meta property=\"twitter:image\" content=\"{previewImage}\" />");
             sb.AppendLine($"  <meta http-equiv=\"refresh\" content=\"0; url={redirectUrl}\" />");
             sb.AppendLine("</head>");
