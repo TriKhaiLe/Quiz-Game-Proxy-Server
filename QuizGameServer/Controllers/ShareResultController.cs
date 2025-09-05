@@ -47,13 +47,13 @@ namespace QuizGameServer.Controllers
             sb.AppendLine($"  <title>Mình đã đạt {score}/{total} điểm!</title>");
             sb.AppendLine("  <meta property=\"og:type\" content=\"website\" />");
             sb.AppendLine($"  <meta property=\"og:url\" content=\"{shareUrl}\" />");
-            sb.AppendLine($"  <meta property=\"og:title\" content=\"Trong bài trắc nghiệm về {topic}! Bạn có thể làm tốt hơn không?\" />");
-            sb.AppendLine($"  <meta property=\"og:description\" content=\"Bạn bè đã chia sẻ kết quả này. Nhấn để xem chi tiết và thử sức!\" />");
+            sb.AppendLine($"  <meta property=\"og:title\" content=\"Mình đã đạt {score}/{total} điểm!\" />");
+            sb.AppendLine($"  <meta property=\"og:description\" content=\"Bài trắc nghiệm về {topic}! Bạn có thể làm tốt hơn không. Nhấn để xem chi tiết và thử sức!\" />");
             sb.AppendLine($"  <meta property=\"og:image\" content=\"{previewImage}\" />");
             sb.AppendLine("  <meta property=\"twitter:card\" content=\"summary_large_image\" />");
             sb.AppendLine($"  <meta property=\"twitter:url\" content=\"{shareUrl}\" />");
-            sb.AppendLine($"  <meta property=\"twitter:title\" content=\"Mình đã đạt {score}/{total} điểm trong bài trắc nghiệm về {topic}! Bạn có thể làm tốt hơn không?\" />");
-            sb.AppendLine($"  <meta property=\"twitter:description\" content=\"Bạn bè đã chia sẻ kết quả này. Nhấn để xem chi tiết và thử sức!\" />");
+            sb.AppendLine($"  <meta property=\"twitter:title\" content=\"Mình đã đạt {score}/{total} điểm!\" />");
+            sb.AppendLine($"  <meta property=\"twitter:description\" content=\"Bài trắc nghiệm về {topic}! Bạn có thể làm tốt hơn không. Nhấn để xem chi tiết và thử sức!\" />");
             sb.AppendLine($"  <meta property=\"twitter:image\" content=\"{previewImage}\" />");
             sb.AppendLine($"  <meta http-equiv=\"refresh\" content=\"0; url={redirectUrl}\" />");
             sb.AppendLine("</head>");
