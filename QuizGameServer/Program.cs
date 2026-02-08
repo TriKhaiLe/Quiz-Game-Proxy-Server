@@ -14,6 +14,9 @@ using QuizGameServer.Middlewares;
 using Serilog;
 using Serilog.Events;
 using System.Net;
+using Application.Configurations;
+using Application.Interfaces;
+using Infrastructure.Services;
 
 namespace QuizGameServer
 {
@@ -106,6 +109,7 @@ namespace QuizGameServer
             builder.Services.AddHttpClient<GeminiService>();
             builder.Services.AddLogging();
             builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection("Gemini"));
+            builder.Services.Configure<AzureTranslatorOptions>(builder.Configuration.GetSection("AzureTranslator"));
 
             var apiKey = builder.Configuration["Gemini:ApiKey"] ?? Environment.GetEnvironmentVariable("GOOGLE_GEMINI_API_KEY");
 
@@ -127,6 +131,7 @@ namespace QuizGameServer
             builder.Services.AddScoped<IUserProfileService, UserProfileService>();
             builder.Services.AddScoped<IQuizSharingService, QuizSharingService>();
             builder.Services.AddScoped<IQuizResultSharingService, QuizResultSharingService>();
+            builder.Services.AddScoped<ITranslationService, AzureTranslationService>();
 
             builder.Services.AddCors(options =>
             {
