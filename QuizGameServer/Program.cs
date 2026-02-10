@@ -147,7 +147,8 @@ namespace QuizGameServer
                 {
                     policy.WithOrigins(
                         "http://localhost:5173",
-                        "https://quiz-game-trivia-master.vercel.app"
+                        "https://quiz-game-trivia-master.vercel.app",
+                        "https://vocab-weaver.vercel.app"
                     )
                     .AllowAnyHeader()
                     .AllowAnyMethod();
