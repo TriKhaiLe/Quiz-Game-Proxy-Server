@@ -1,5 +1,6 @@
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace QuizGameServer.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [EnableRateLimiting("TranslationRateLimit")]
     public class TranslationController : ControllerBase
     {
         private readonly ITranslationService _translationService;

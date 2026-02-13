@@ -14,6 +14,7 @@ using QuizGameServer.Middlewares;
 using Serilog;
 using Serilog.Events;
 using System.Net;
+using System.Threading.RateLimiting;
 using Application.Configurations;
 using Application.Interfaces;
 using Infrastructure.Services;
@@ -133,6 +134,22 @@ namespace QuizGameServer
             builder.Services.AddScoped<IQuizResultSharingService, QuizResultSharingService>();
             builder.Services.AddScoped<ITranslationService, AzureTranslationService>();
 
+            // Rate limiting for unauthenticated endpoints (e.g., Translation API)
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+                options.AddPolicy("TranslationRateLimit", httpContext =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                        factory: _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 60,
+                            Window = TimeSpan.FromMinutes(1),
+                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                            QueueLimit = 0
+                        }));
+            });
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll",
@@ -177,6 +194,7 @@ namespace QuizGameServer
 
             app.UseHttpsRedirection();
             app.UseCors(builder.Environment.IsDevelopment() ? "AllowAll" : "AllowFrontend");
+            app.UseRateLimiter();
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
