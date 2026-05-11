@@ -14,6 +14,10 @@ using QuizGameServer.Middlewares;
 using Serilog;
 using Serilog.Events;
 using System.Net;
+using System.Threading.RateLimiting;
+using Application.Configurations;
+using Application.Interfaces;
+using Infrastructure.Services;
 
 namespace QuizGameServer
 {
@@ -106,6 +110,7 @@ namespace QuizGameServer
             builder.Services.AddHttpClient<GeminiService>();
             builder.Services.AddLogging();
             builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection("Gemini"));
+            builder.Services.Configure<AzureTranslatorOptions>(builder.Configuration.GetSection("AzureTranslator"));
 
             var apiKey = builder.Configuration["Gemini:ApiKey"] ?? Environment.GetEnvironmentVariable("GOOGLE_GEMINI_API_KEY");
 
@@ -128,6 +133,23 @@ namespace QuizGameServer
             builder.Services.AddScoped<IBudgetService, BudgetService>();
             builder.Services.AddScoped<IQuizSharingService, QuizSharingService>();
             builder.Services.AddScoped<IQuizResultSharingService, QuizResultSharingService>();
+            builder.Services.AddScoped<ITranslationService, AzureTranslationService>();
+
+            // Rate limiting for unauthenticated endpoints (e.g., Translation API)
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+                options.AddPolicy("TranslationRateLimit", httpContext =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                        factory: _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 60,
+                            Window = TimeSpan.FromMinutes(1),
+                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                            QueueLimit = 0
+                        }));
+            });
 
             builder.Services.AddCors(options =>
             {
@@ -143,7 +165,8 @@ namespace QuizGameServer
                 {
                     policy.WithOrigins(
                         "http://localhost:5173",
-                        "https://quiz-game-trivia-master.vercel.app"
+                        "https://quiz-game-trivia-master.vercel.app",
+                        "https://vocab-weaver.vercel.app"
                     )
                     .AllowAnyHeader()
                     .AllowAnyMethod();
@@ -172,6 +195,7 @@ namespace QuizGameServer
 
             app.UseHttpsRedirection();
             app.UseCors(builder.Environment.IsDevelopment() ? "AllowAll" : "AllowFrontend");
+            app.UseRateLimiter();
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
