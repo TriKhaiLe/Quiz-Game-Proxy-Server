@@ -27,7 +27,7 @@ namespace Infrastructure
                 .Build();
 
             var connectionString = configuration.GetConnectionString("DefaultConnection");
-            
+
             if (string.IsNullOrEmpty(connectionString))
             {
                 throw new InvalidOperationException("[DbContextFactory] Connection string is missing. Check appsettings or environment variables.");

@@ -17,11 +17,11 @@ namespace QuizGameServer.Controllers
         [HttpPost("share")]
         public async Task<IActionResult> ShareResult([FromBody] ShareQuizResultDto request, CancellationToken cancellationToken)
         {
-            if (request == null 
-                || string.IsNullOrWhiteSpace(request.Topic) 
-                || request.UserAnswers == null 
-                || request.UserAnswers.Count == 0 
-                || request.Questions == null 
+            if (request == null
+                || string.IsNullOrWhiteSpace(request.Topic)
+                || request.UserAnswers == null
+                || request.UserAnswers.Count == 0
+                || request.Questions == null
                 || request.Questions.Count == 0)
                 return BadRequest();
             var id = await _service.ShareQuizResultAsync(request.Topic, request.Difficulty, request.UserAnswers, request.Questions, cancellationToken);

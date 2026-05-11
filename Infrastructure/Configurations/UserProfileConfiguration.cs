@@ -11,8 +11,11 @@ namespace QuizGameServer.Infrastructure.Configurations
             builder.ToTable("UserProfiles");
             builder.HasKey(x => x.UserId);
             builder.Property(x => x.UserId).IsRequired();
+            builder.Property(x => x.Email).IsRequired().HasMaxLength(255);
             builder.Property(x => x.Username).IsRequired().HasMaxLength(100);
             builder.Property(x => x.AvatarId).IsRequired().HasMaxLength(50);
+            builder.Property(x => x.CreatedAt).IsRequired();
+            builder.Property(x => x.UpdatedAt).IsRequired();
         }
     }
 }

@@ -7,8 +7,10 @@ namespace QuizGameServer.Application.Contracts
     {
         public UserProfileMappingProfile()
         {
-            CreateMap<UserProfile, UserProfileDto>();
-            CreateMap<UserProfileDto, UserProfile>();
+            CreateMap<UserProfile, UserProfileDto>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UserId));
+            CreateMap<UserProfileDto, UserProfile>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id));
         }
     }
 }

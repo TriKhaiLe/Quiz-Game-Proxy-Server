@@ -12,11 +12,15 @@ namespace QuizGameServer.Infrastructure
         public DbSet<QuizContent> QuizContents { get; set; }
         public DbSet<QuizContentQuestion> QuizContentQuestions { get; set; }
         public DbSet<QuizResult> QuizResults { get; set; }
+        public DbSet<BudgetMonthState> BudgetMonthStates { get; set; }
+        public DbSet<BudgetSnapshot> BudgetSnapshots { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new Configurations.UserProfileConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.QuizResultConfiguration());
+            modelBuilder.ApplyConfiguration(new Configurations.BudgetMonthStateConfiguration());
+            modelBuilder.ApplyConfiguration(new Configurations.BudgetSnapshotConfiguration());
             base.OnModelCreating(modelBuilder);
         }
     }

@@ -7,6 +7,6 @@ namespace QuizGameServer.Application.Interfaces
     public interface IUserProfileService
     {
         Task<UserProfile> GetProfileAsync(string userId);
-        Task<UserProfile> UpsertProfileAsync(string userId, UserProfileRequest request);
+        Task<UserProfile> UpsertProfileAsync(string userId, string email, UserProfileRequest request);
     }
 }
