@@ -161,15 +161,24 @@ namespace QuizGameServer
                               .AllowAnyHeader();
                     });
 
+                var corsOrigins = builder.Configuration
+                    .GetSection("Cors:AllowedOrigins")
+                    .Get<string[]>() ?? Array.Empty<string>();
+
                 options.AddPolicy("AllowFrontend", policy =>
                 {
-                    policy.WithOrigins(
-                        "http://localhost:5173",
-                        "https://quiz-game-trivia-master.vercel.app",
-                        "https://vocab-weaver.vercel.app"
-                    )
-                    .AllowAnyHeader()
-                    .AllowAnyMethod();
+                    if (corsOrigins.Length > 0)
+                    {
+                        policy.WithOrigins(corsOrigins)
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    }
+                    else
+                    {
+                        policy.AllowAnyOrigin()
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    }
                 });
             });
 
