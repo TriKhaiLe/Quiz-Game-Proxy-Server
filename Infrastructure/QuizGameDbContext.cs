@@ -1,3 +1,4 @@
+using Dishboard.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using QuizGameServer.Domain.Entities;
 
@@ -15,12 +16,15 @@ namespace QuizGameServer.Infrastructure
         public DbSet<BudgetMonthState> BudgetMonthStates { get; set; }
         public DbSet<BudgetSnapshot> BudgetSnapshots { get; set; }
 
+        public DbSet<Meal> Meals { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new Configurations.UserProfileConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.QuizResultConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.BudgetMonthStateConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.BudgetSnapshotConfiguration());
+            modelBuilder.ApplyConfiguration(new Dishboard.Infrastructure.Configurations.MealConfiguration());
             base.OnModelCreating(modelBuilder);
         }
     }
