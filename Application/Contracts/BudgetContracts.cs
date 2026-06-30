@@ -15,6 +15,13 @@ namespace QuizGameServer.Application.Contracts
         public DateTime UpdatedAt { get; set; }
     }
 
+    public class BudgetVersionResponse
+    {
+        public string Month { get; set; }
+        public int Version { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+
     public class BudgetStateResponse
     {
         public string Month { get; set; }

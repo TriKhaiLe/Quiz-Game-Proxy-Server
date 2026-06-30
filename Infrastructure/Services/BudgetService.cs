@@ -41,6 +41,20 @@ namespace QuizGameServer.Infrastructure.Services
             return months;
         }
 
+        public async Task<BudgetVersionResponse> GetVersionAsync(string userId, string month)
+        {
+            return await _dbContext.BudgetMonthStates
+                .AsNoTracking()
+                .Where(x => x.UserId == userId && x.Month == month)
+                .Select(x => new BudgetVersionResponse
+                {
+                    Month = x.Month,
+                    Version = x.Version,
+                    UpdatedAt = x.UpdatedAt
+                })
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<BudgetStateResponse> GetStateAsync(string userId, string month)
         {
             var state = await _dbContext.BudgetMonthStates

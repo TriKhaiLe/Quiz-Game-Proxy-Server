@@ -5,6 +5,7 @@ namespace QuizGameServer.Application.Interfaces
     public interface IBudgetService
     {
         Task<List<BudgetMonthSummaryDto>> GetMonthsAsync(string userId);
+        Task<BudgetVersionResponse> GetVersionAsync(string userId, string month);
         Task<BudgetStateResponse> GetStateAsync(string userId, string month);
         Task<(BudgetStateResponse Response, BudgetStateResponse ServerState)> UpsertStateAsync(string userId, string month, BudgetStateUpdateRequest request);
         Task<BudgetStateResponse> StartNextMonthAsync(string userId, string fromMonth);

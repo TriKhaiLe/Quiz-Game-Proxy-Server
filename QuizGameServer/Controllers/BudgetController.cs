@@ -89,6 +89,50 @@ namespace QuizGameServer.Controllers
             return Ok(state);
         }
 
+        [HttpGet("version")]
+        public async Task<IActionResult> GetVersion([FromQuery] string month)
+        {
+            if (string.IsNullOrWhiteSpace(month))
+            {
+                return BadRequest(new
+                {
+                    error = new
+                    {
+                        code = "VALIDATION_FAILED",
+                        message = "Month is required"
+                    }
+                });
+            }
+
+            var userId = GetUserId();
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new
+                {
+                    error = new
+                    {
+                        code = "UNAUTHORIZED",
+                        message = "Missing or invalid credentials"
+                    }
+                });
+            }
+
+            var version = await _budgetService.GetVersionAsync(userId, month);
+            if (version == null)
+            {
+                return NotFound(new
+                {
+                    error = new
+                    {
+                        code = "NOT_FOUND",
+                        message = $"No budget state found for month {month}"
+                    }
+                });
+            }
+
+            return Ok(version);
+        }
+
         [HttpPut("state")]
         public async Task<IActionResult> UpsertState([FromQuery] string month, [FromBody] BudgetStateUpdateRequest request)
         {
