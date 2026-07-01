@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using QuizGameServer.Infrastructure;
@@ -12,9 +13,11 @@ using QuizGameServer.Infrastructure;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(QuizGameDbContext))]
-    partial class QuizGameDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260628143809_AddMealCategory")]
+    partial class AddMealCategory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,7 +43,7 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsFavorite")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("MealCategoryId")
+                    b.Property<int?>("MealCategoryId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
@@ -272,13 +275,9 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Dishboard.Domain.Entities.Meal", b =>
                 {
-                    b.HasOne("Dishboard.Domain.Entities.MealCategory", "MealCategory")
+                    b.HasOne("Dishboard.Domain.Entities.MealCategory", null)
                         .WithMany("Meals")
-                        .HasForeignKey("MealCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("MealCategory");
+                        .HasForeignKey("MealCategoryId");
                 });
 
             modelBuilder.Entity("QuizGameServer.Domain.Entities.QuizContentQuestion", b =>

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using QuizGameServer.Infrastructure;
@@ -12,9 +13,11 @@ using QuizGameServer.Infrastructure;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(QuizGameDbContext))]
-    partial class QuizGameDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260623022750_AddMealTable")]
+    partial class AddMealTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,9 +43,6 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsFavorite")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("MealCategoryId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -53,27 +53,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MealCategoryId");
-
                     b.ToTable("Meals");
-                });
-
-            modelBuilder.Entity("Dishboard.Domain.Entities.MealCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("MealCategories");
                 });
 
             modelBuilder.Entity("QuizGameServer.Domain.Entities.BudgetMonthState", b =>
@@ -270,17 +250,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("UserProfiles", (string)null);
                 });
 
-            modelBuilder.Entity("Dishboard.Domain.Entities.Meal", b =>
-                {
-                    b.HasOne("Dishboard.Domain.Entities.MealCategory", "MealCategory")
-                        .WithMany("Meals")
-                        .HasForeignKey("MealCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("MealCategory");
-                });
-
             modelBuilder.Entity("QuizGameServer.Domain.Entities.QuizContentQuestion", b =>
                 {
                     b.HasOne("QuizGameServer.Domain.Entities.QuizContent", "QuizContent")
@@ -312,11 +281,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("QuizContent");
-                });
-
-            modelBuilder.Entity("Dishboard.Domain.Entities.MealCategory", b =>
-                {
-                    b.Navigation("Meals");
                 });
 
             modelBuilder.Entity("QuizGameServer.Domain.Entities.QuizContent", b =>
