@@ -8,7 +8,7 @@ namespace Dishboard.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class MealController : ControllerBase
+public partial class MealController : ControllerBase
 {
     private readonly QuizGameDbContext _dbContext;
 
@@ -19,7 +19,7 @@ public class MealController : ControllerBase
 
     #region CRUD Operations
     [HttpGet]
-    public async Task<IActionResult> GetMeals(string sort = "price", string order = "asc")
+    public async Task<ActionResult<IEnumerable<Meal>>> GetMeals(string sort = "price", string order = "asc", int page = 1, int pageSize = 10)
     {
         IQueryable<Meal> query = _dbContext.Meals;
         query = sort.ToLower() switch
@@ -29,7 +29,7 @@ public class MealController : ControllerBase
             _ => order.ToLower() == "asc" ? query.OrderBy(m => m.Id) : query.OrderByDescending(m => m.Id),
         };
 
-        var meals = await query.ToListAsync();
+        var meals = await query.Skip((page - 1) * pageSize).Take(pageSize).AsNoTracking().ToListAsync();
         return Ok(meals);
     }
 

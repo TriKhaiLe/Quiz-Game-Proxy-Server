@@ -17,14 +17,13 @@ namespace QuizGameServer.Infrastructure
         public DbSet<BudgetSnapshot> BudgetSnapshots { get; set; }
 
         public DbSet<Meal> Meals { get; set; }
+        public DbSet<MealCategory> MealCategories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new Configurations.UserProfileConfiguration());
-            modelBuilder.ApplyConfiguration(new Configurations.QuizResultConfiguration());
-            modelBuilder.ApplyConfiguration(new Configurations.BudgetMonthStateConfiguration());
-            modelBuilder.ApplyConfiguration(new Configurations.BudgetSnapshotConfiguration());
-            modelBuilder.ApplyConfiguration(new Dishboard.Infrastructure.Configurations.MealConfiguration());
+            modelBuilder.ApplyConfigurationsFromAssembly(
+                    typeof(QuizGameDbContext).Assembly);
+
             base.OnModelCreating(modelBuilder);
         }
     }

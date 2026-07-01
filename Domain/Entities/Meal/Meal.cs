@@ -13,4 +13,8 @@ public class Meal
     public bool IsFavorite { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    // public int? MealCategoryId { get; set; }
+
+    // public MealCategory? MealCategory { get; set; }
 }
