@@ -14,7 +14,7 @@ public class Meal
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    // public int? MealCategoryId { get; set; }
+    public int MealCategoryId { get; set; } = 1;
 
-    // public MealCategory? MealCategory { get; set; }
+    public MealCategory? MealCategory { get; set; }
 }
